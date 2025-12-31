@@ -87,4 +87,7 @@ while True: #Loop to keep the game running; checking for events constantly
     pygame.display.flip() #Updates every frame in the entire screen
     clock.tick(60) #60 frames per second
 
+
+# Testing Git sync between PC and laptop
+
     
