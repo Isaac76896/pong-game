@@ -16,6 +16,7 @@ BALL_SPEED_X = 4
 SCORE1 = 0
 SCORE2 = 0
 SERVE_OFFSET = 20
+FREE_MOVEMENT_ACTIVATION = 3
 
 #Objects
 font = pygame.font.SysFont(None, 36) #Font for score display
@@ -55,20 +56,22 @@ while True: #Loop to keep the game running; checking for events constantly
         paddle1.y -= PADDLE_SPEED
     if keys[pygame.K_s]:
         paddle1.y += PADDLE_SPEED
-    if keys[pygame.K_a]:
-        paddle1.x -= PADDLE_SPEED
-    if keys[pygame.K_d]:
-        paddle1.x += PADDLE_SPEED
+    if SCORE1 >= FREE_MOVEMENT_ACTIVATION: #Activates free movement feature
+        if keys[pygame.K_a]:
+            paddle1.x -= PADDLE_SPEED
+        if keys[pygame.K_d]:
+            paddle1.x += PADDLE_SPEED
     
     #Movement for paddle 2
     if keys[pygame.K_UP]:
         paddle2.y -= PADDLE_SPEED
     if keys[pygame.K_DOWN]:
         paddle2.y += PADDLE_SPEED
-    if keys[pygame.K_LEFT]:
-        paddle2.x -= PADDLE_SPEED
-    if keys[pygame.K_RIGHT]:
-        paddle2.x += PADDLE_SPEED
+    if SCORE2 >= FREE_MOVEMENT_ACTIVATION: #Activates free movement feature
+        if keys[pygame.K_LEFT]:
+            paddle2.x -= PADDLE_SPEED
+        if keys[pygame.K_RIGHT]:
+            paddle2.x += PADDLE_SPEED
     
     #Movement for ball
     ball.x += BALL_SPEED_X
