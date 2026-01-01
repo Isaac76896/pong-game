@@ -12,7 +12,8 @@ PADDLE_SPEED = 5
 BALL_SIZE = 10
 BALL_SPEED_Y = 4
 BALL_SPEED_X = 4
-
+SCORE1 = 0
+SCORE2 = 0
 
 #Objects
 paddle1 = pygame.Rect(20, HEIGHT // 2 - 40, 10, 80) #Creating paddle 1
@@ -31,6 +32,7 @@ paddle2_boundaries = pygame.Rect(
     HEIGHT
 )
 ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2,HEIGHT // 2 - BALL_SIZE // 2,BALL_SIZE,BALL_SIZE) #Creating pong ball
+
 
 
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
@@ -66,14 +68,40 @@ while True: #Loop to keep the game running; checking for events constantly
     if keys[pygame.K_RIGHT]:
         paddle2.x += PADDLE_SPEED
     
+    #Movement for ball
+    ball.x += BALL_SPEED_X
+    ball.y += BALL_SPEED_Y
+
+
     #Constraints
-    paddle1.clamp_ip(paddle1_boundaries)
-    paddle2.clamp_ip(paddle2_boundaries)
+    paddle1.clamp_ip(paddle1_boundaries) #boundaries for paddle 1
+    paddle2.clamp_ip(paddle2_boundaries) #Boundaries for paddle 2
+    
+
+    #Ball Wall Collision
+    if ball.top <= 0 or ball.bottom >= HEIGHT:#Makes the ball go in the opposite direction once it collides with the top or bottom walls
+        BALL_SPEED_Y *= -1 
+
+    if ball.left <= 0 or ball.right >= WIDTH: #Makes the ball go in the opposite direction once it collides with the side walls
+        BALL_SPEED_X *= -1
+
+    #Ball Paddle Collision
+    if ball.colliderect(paddle1):
+        ball.left = paddle1.right
+        BALL_SPEED_X *= -1
+
+    if ball.colliderect(paddle2):
+        ball.right = paddle2.left
+        BALL_SPEED_X *= -1
+
+
 
     #Drawing
     window.fill((0, 0, 0))  # Draws the content of the screen with RGB colors
-    pygame.draw.rect(window, (0, 102, 204), paddle1) # Draw paddle using RGB colors
-    pygame.draw.rect(window, (153, 0, 0), paddle2)
+    pygame.draw.rect(window, (0, 102, 204), paddle1) # Draw paddle 1 using RGB colors "blue"
+    pygame.draw.rect(window, (153, 0, 0), paddle2) #Draw paddle 2 "red"
+    pygame.draw.rect(window, (255, 165, 0), ball)  # Draw ball "orange"
+
 
     #Center dashed line 
     line_width = 6
@@ -88,6 +116,3 @@ while True: #Loop to keep the game running; checking for events constantly
     clock.tick(60) #60 frames per second
 
 
-# Testing Git sync between PC and laptop
-
-#Yes, it did work on laptop 
