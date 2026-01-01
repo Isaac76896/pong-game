@@ -1,4 +1,12 @@
-This is my first game using pygame.
+# Pong Game (Pygame)
 
-I decided to build this pong game as my first pygame, to fully grasp how pygame works and for my phython understand and skills to get better.
-Feel free to try it and let me know if you like it :)
+This is my first game created using **pygame**.
+
+I chose to build a Pong game as a way to fully understand the basics of pygame and to strengthen my Python programming skills.  
+Through this project, I learned about game loops, player input, collision detection, and scoring systems.
+
+Feel free to try the game and share any feedback🙂
+
+## Controls
+- Player 1: W / S / A / D
+- Player 2: Arrow keys
