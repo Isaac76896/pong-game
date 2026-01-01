@@ -4,6 +4,7 @@ import sys
 #Initiating pygame
 pygame.init() #ALWAYS needs to be used in order to use pygame
 pygame.display.set_caption("Pong Game")  #Caption for the window
+print("Game running successfully")
 
 #Game variables
 WIDTH = 600
@@ -14,8 +15,10 @@ BALL_SPEED_Y = 4
 BALL_SPEED_X = 4
 SCORE1 = 0
 SCORE2 = 0
+SERVE_OFFSET = 20
 
 #Objects
+font = pygame.font.SysFont(None, 36) #Font for score display
 paddle1 = pygame.Rect(20, HEIGHT // 2 - 40, 10, 80) #Creating paddle 1
 paddle2 = pygame.Rect(WIDTH - 30, HEIGHT // 2 - 40, 10, 80) #Creating paddle 2
 paddle1_boundaries = pygame.Rect(
@@ -32,16 +35,15 @@ paddle2_boundaries = pygame.Rect(
     HEIGHT
 )
 ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2,HEIGHT // 2 - BALL_SIZE // 2,BALL_SIZE,BALL_SIZE) #Creating pong ball
-
-
-
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
 clock = pygame.time.Clock() #Used for the frame rate
+
 
 #Loop game
 while True: #Loop to keep the game running; checking for events constantly 
     for event in pygame.event.get():              
         if event.type == pygame.QUIT:
+            print("Game over!")
             pygame.quit()
             sys.exit()
 
@@ -82,9 +84,7 @@ while True: #Loop to keep the game running; checking for events constantly
     if ball.top <= 0 or ball.bottom >= HEIGHT:#Makes the ball go in the opposite direction once it collides with the top or bottom walls
         BALL_SPEED_Y *= -1 
 
-    if ball.left <= 0 or ball.right >= WIDTH: #Makes the ball go in the opposite direction once it collides with the side walls
-        BALL_SPEED_X *= -1
-
+    
     #Ball Paddle Collision
     if ball.colliderect(paddle1):
         ball.left = paddle1.right
@@ -93,6 +93,45 @@ while True: #Loop to keep the game running; checking for events constantly
     if ball.colliderect(paddle2):
         ball.right = paddle2.left
         BALL_SPEED_X *= -1
+    
+    #Scoring
+    if ball.left <= 0:
+        SCORE2 += 1
+
+        # Serve to Player 1 (loser)
+
+        #Resets paddle1's position
+        paddle1.left = 20  #Moves paddle1 to x = 20
+        paddle1.top = HEIGHT // 2 - 40 #Centers paddle
+
+        #Resets paddle2's position
+        paddle2.left = WIDTH - 30  #Moves paddle2 to x = 570
+        paddle2.top = HEIGHT // 2 - 40 #Centers paddle
+
+        #Resets ball in front of the paddle1
+        ball.left = paddle1.right + SERVE_OFFSET
+        ball.centery = paddle1.centery
+        
+        BALL_SPEED_X = abs(BALL_SPEED_X)  # move right
+
+    if ball.right >= WIDTH:
+        SCORE1 += 1
+
+        # Serve to Player 2 (loser)
+        
+        #Resets paddle1's position
+        paddle1.left = 20  #Moves paddle1 to x = 20
+        paddle1.top = HEIGHT // 2 - 40 #Centers paddle
+
+        #Resets paddle2's position
+        paddle2.left = WIDTH - 30  #Moves paddle2 to x = 570
+        paddle2.top = HEIGHT // 2 - 40 #Centers paddle
+
+        #Resets ball in front of paddle2
+        ball.right = paddle2.left - SERVE_OFFSET
+        ball.centery = paddle2.centery
+
+        BALL_SPEED_X = -abs(BALL_SPEED_X)  # move left
 
 
 
@@ -101,6 +140,8 @@ while True: #Loop to keep the game running; checking for events constantly
     pygame.draw.rect(window, (0, 102, 204), paddle1) # Draw paddle 1 using RGB colors "blue"
     pygame.draw.rect(window, (153, 0, 0), paddle2) #Draw paddle 2 "red"
     pygame.draw.rect(window, (255, 165, 0), ball)  # Draw ball "orange"
+    score_text = font.render(f"{SCORE1}   {SCORE2}", True, (255, 255, 255)) #Converts text into a surface
+    window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 20)) #Places the text(surface) we created on the object that is calling it (window)
 
 
     #Center dashed line 
