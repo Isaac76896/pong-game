@@ -17,9 +17,11 @@ SCORE1 = 0
 SCORE2 = 0
 SERVE_OFFSET = 20
 FREE_MOVEMENT_ACTIVATION = 3
+WIN_SCORE = 7
 
 #Objects
 font = pygame.font.SysFont(None, 36) #Font for score display
+game_over_font = pygame.font.SysFont(None, 50)
 paddle1 = pygame.Rect(20, HEIGHT // 2 - 40, 10, 80) #Creating paddle 1
 paddle2 = pygame.Rect(WIDTH - 30, HEIGHT // 2 - 40, 10, 80) #Creating paddle 2
 paddle1_boundaries = pygame.Rect(
@@ -38,6 +40,7 @@ paddle2_boundaries = pygame.Rect(
 ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2,HEIGHT // 2 - BALL_SIZE // 2,BALL_SIZE,BALL_SIZE) #Creating pong ball
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
 clock = pygame.time.Clock() #Used for the frame rate
+
 
 
 #Loop game
@@ -135,18 +138,17 @@ while True: #Loop to keep the game running; checking for events constantly
         ball.centery = paddle2.centery
 
         BALL_SPEED_X = -abs(BALL_SPEED_X)  # move left
-
-
+    
 
     #Drawing
     window.fill((0, 0, 0))  # Draws the content of the screen with RGB colors
     pygame.draw.rect(window, (0, 102, 204), paddle1) # Draw paddle 1 using RGB colors "blue"
     pygame.draw.rect(window, (153, 0, 0), paddle2) #Draw paddle 2 "red"
     pygame.draw.rect(window, (255, 165, 0), ball)  # Draw ball "orange"
-    score_text = font.render(f"{SCORE1}   {SCORE2}", True, (255, 255, 255)) #Converts text into a surface
+    score_text = font.render(f"{SCORE1}   {SCORE2}", True, (255, 255, 255)) #Converts text into a surface (Score)
     window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 20)) #Places the text(surface) we created on the object that is calling it (window)
-
-
+    
+    
     #Center dashed line 
     line_width = 6
     line_height = 20
@@ -158,5 +160,16 @@ while True: #Loop to keep the game running; checking for events constantly
 
     pygame.display.flip() #Updates every frame in the entire screen
     clock.tick(60) #60 frames per second
+
+    #Game ending
+    if SCORE1 >= WIN_SCORE or SCORE2 >= WIN_SCORE:
+        pygame.draw.rect(window, (0, 0, 0), game_over_screen)
+        game_over_text = game_over_font.render(f"GAME OVER!!!", True, (255, 255, 255))
+        window.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2))
+        
+
+
+        #pygame.quit()
+        #sys.exit()
 
 
