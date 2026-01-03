@@ -1,9 +1,15 @@
+import os
 import pygame
 import sys
 
+#Guarantees that it works anywhere
+BASE_DIR = os.path.dirname(__file__)
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+FONTS_DIR = os.path.join(ASSETS_DIR, "fonts")
+
 #Initiating pygame
 pygame.init() #ALWAYS needs to be used in order to use pygame
-pygame.display.set_caption("Pong Game")  #Caption for the window
+pygame.display.set_caption("Mad Pong Game")  #Caption for the window
 print("Game running successfully")
 
 #Game variables
@@ -18,10 +24,19 @@ SCORE2 = 0
 SERVE_OFFSET = 20
 FREE_MOVEMENT_ACTIVATION = 3
 WIN_SCORE = 7
+GAME_OVER = False
+COLLISION_COOLDOWN = 0
 
 #Objects
-font = pygame.font.SysFont(None, 36) #Font for score display
-game_over_font = pygame.font.SysFont(None, 50)
+
+#Fonts
+try:
+    font = pygame.font.Font(os.path.join(FONTS_DIR, "Extradition.ttf"), 36) #Font used for the score
+    game_over_font = pygame.font.Font(os.path.join(FONTS_DIR, "Extradition-Italic.ttf"), 50) #Font used for the game over screen
+except FileNotFoundError:
+    font = pygame.font.SysFont(None, 36)
+    game_over_font = pygame.font.SysFont(None, 50)
+
 paddle1 = pygame.Rect(20, HEIGHT // 2 - 40, 10, 80) #Creating paddle 1
 paddle2 = pygame.Rect(WIDTH - 30, HEIGHT // 2 - 40, 10, 80) #Creating paddle 2
 paddle1_boundaries = pygame.Rect(
@@ -89,17 +104,21 @@ while True: #Loop to keep the game running; checking for events constantly
     #Ball Wall Collision
     if ball.top <= 0 or ball.bottom >= HEIGHT:#Makes the ball go in the opposite direction once it collides with the top or bottom walls
         BALL_SPEED_Y *= -1 
-
     
     #Ball Paddle Collision
-    if ball.colliderect(paddle1):
+    if COLLISION_COOLDOWN > 0:  #Condition to prevent phasing through the paddles 
+        COLLISION_COOLDOWN -= 1
+
+    if COLLISION_COOLDOWN == 0 and ball.colliderect(paddle1): #Collision for paddle1
         ball.left = paddle1.right
         BALL_SPEED_X *= -1
+        COLLISION_COOLDOWN = 5
 
-    if ball.colliderect(paddle2):
+    if COLLISION_COOLDOWN == 0 and ball.colliderect(paddle2): #Collision for paddle2
         ball.right = paddle2.left
         BALL_SPEED_X *= -1
-    
+        COLLISION_COOLDOWN = 5
+
     #Scoring
     if ball.left <= 0:
         SCORE2 += 1
@@ -141,14 +160,25 @@ while True: #Loop to keep the game running; checking for events constantly
     
 
     #Drawing
-    window.fill((0, 0, 0))  # Draws the content of the screen with RGB colors
-    pygame.draw.rect(window, (0, 102, 204), paddle1) # Draw paddle 1 using RGB colors "blue"
-    pygame.draw.rect(window, (153, 0, 0), paddle2) #Draw paddle 2 "red"
-    pygame.draw.rect(window, (255, 165, 0), ball)  # Draw ball "orange"
-    score_text = font.render(f"{SCORE1}   {SCORE2}", True, (255, 255, 255)) #Converts text into a surface (Score)
-    window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 20)) #Places the text(surface) we created on the object that is calling it (window)
-    
-    
+    if GAME_OVER:
+        window.fill((0, 0, 0))
+        game_over_text = game_over_font.render(f"GAME OVER!!!", True, (210, 43, 43))
+        window.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2))
+        
+        pygame.display.flip()
+        pygame.time.delay(2000)
+
+        pygame.quit()
+        sys.exit()
+    else:
+        window.fill((0, 0, 0))  # Draws the content of the screen with RGB colors
+        pygame.draw.rect(window, (0, 102, 204), paddle1) # Draw paddle 1 using RGB colors "blue"
+        pygame.draw.rect(window, (153, 0, 0), paddle2) #Draw paddle 2 "red"
+        pygame.draw.rect(window, (255, 165, 0), ball)  # Draw ball "orange"
+        score_text = font.render(f"{SCORE1}   {SCORE2}", True, (255, 255, 255)) #Converts text into a surface (Score)
+        window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 20)) #Places the text(surface) we created on the object that is calling it (window)
+        
+        
     #Center dashed line 
     line_width = 6
     line_height = 20
@@ -158,18 +188,13 @@ while True: #Loop to keep the game running; checking for events constantly
     for y in range(0, HEIGHT, line_height + gap): #Loop that creates tiny rectangles starting from the top and ending at the bottom
         pygame.draw.rect(window,(200, 200, 200),(center_x, y, line_width, line_height)) 
 
+    #Game ending
+    if not GAME_OVER and (SCORE1 >= WIN_SCORE or SCORE2 >= WIN_SCORE):
+        GAME_OVER = True
+        
+
     pygame.display.flip() #Updates every frame in the entire screen
     clock.tick(60) #60 frames per second
 
-    #Game ending
-    if SCORE1 >= WIN_SCORE or SCORE2 >= WIN_SCORE:
-        pygame.draw.rect(window, (0, 0, 0), game_over_screen)
-        game_over_text = game_over_font.render(f"GAME OVER!!!", True, (255, 255, 255))
-        window.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2))
-        
-
-
-        #pygame.quit()
-        #sys.exit()
-
+    
 
