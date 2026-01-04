@@ -22,12 +22,12 @@ BALL_SPEED_X = 7
 SCORE1 = 0
 SCORE2 = 0
 SERVE_OFFSET = 20
-FREE_MOVEMENT_ACTIVATION = 3
-WIN_SCORE = 7
+FREE_MOVEMENT_ACTIVATION = 0
+WIN_SCORE = 100
 GAME_OVER = False
 COLLISION_COOLDOWN = 0
 MAX_BALL_Y_SPEED = 8
-MAX_BALL_X_SPEED = 12
+MAX_BALL_X_SPEED = 14
 
 #Objects
 
@@ -44,15 +44,15 @@ paddle2 = pygame.Rect(WIDTH - 30, HEIGHT // 2 - 40, 10, 80) #Creating paddle 2
 paddle1_boundaries = pygame.Rect(
     0,          # left edge
     0,          # top edge
-    (WIDTH //2) - 1,        #right edge   x = 499
+    (WIDTH //2) - 1,  # The width of the rectangle = 499
     HEIGHT
 )
 
 paddle2_boundaries = pygame.Rect(
     (WIDTH // 2) + 1,   # left edge   x = 501
     0,          # top edge
-    WIDTH,# right edge
-    HEIGHT 
+    (WIDTH // 2) - 1,# The width of the rectangle
+    HEIGHT # The height of the rectangle 
 )
 ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2,HEIGHT // 2 - BALL_SIZE // 2,BALL_SIZE,BALL_SIZE) #Creating pong ball
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
@@ -63,6 +63,8 @@ clock = pygame.time.Clock() #Used for the frame rate
 def bounce_from_paddle(ball, paddle):
     global BALL_SPEED_X, BALL_SPEED_Y
 
+    prev_y = BALL_SPEED_Y
+
     # How far from center did the ball hit? (-1 to 1)
     offset = (ball.centery - paddle.centery) / (paddle.height / 2)
 
@@ -71,11 +73,7 @@ def bounce_from_paddle(ball, paddle):
 
     # Make sure it's not perfectly flat
     if BALL_SPEED_Y == 0:
-        BALL_SPEED_Y = 1
-
-    # Keeps the ball speed within it's limit, so it doesn't infinitely become faster
-    BALL_SPEED_Y = max(-MAX_BALL_Y_SPEED, min(BALL_SPEED_Y, MAX_BALL_Y_SPEED))
-    BALL_SPEED_X = max(-MAX_BALL_X_SPEED, min(BALL_SPEED_X, MAX_BALL_X_SPEED))
+        BALL_SPEED_Y = 1 if prev_y > 0 else -1
 
     # Bounce back horizontally AND speed up
     BALL_SPEED_X *= -1
@@ -84,7 +82,9 @@ def bounce_from_paddle(ball, paddle):
     if abs(offset) < 0.3:  # If hit near center (adjust 0.3 to make the "middle" zone bigger/smaller)
         BALL_SPEED_X = int(BALL_SPEED_X * 1.2)  # 20% speed boost (adjust 1.2 to increase/decrease boost)
 
-
+    # Keeps the ball speed within it's limit, so it doesn't infinitely become faster
+    BALL_SPEED_Y = max(-MAX_BALL_Y_SPEED, min(BALL_SPEED_Y, MAX_BALL_Y_SPEED))
+    BALL_SPEED_X = max(-MAX_BALL_X_SPEED, min(BALL_SPEED_X, MAX_BALL_X_SPEED))
 
 
 #Loop game
@@ -120,6 +120,14 @@ while True: #Loop to keep the game running; checking for events constantly
         if keys[pygame.K_RIGHT]:
             paddle2.x += PADDLE_SPEED
     
+
+    #Increases paddle speed when BALL_SPEED_X is equals or greater than 9
+    if abs(BALL_SPEED_X) >= 9:
+        PADDLE_SPEED = 8  # Faster paddles
+        print("Ball is going faster now!!!!!!!!!!!")
+    else:
+        PADDLE_SPEED = 6  # Normal speed
+
     #Movement for ball
     ball.x += BALL_SPEED_X
     ball.y += BALL_SPEED_Y
