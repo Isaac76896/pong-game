@@ -13,12 +13,12 @@ pygame.display.set_caption("Mad Pong Game")  #Caption for the window
 print("Game running successfully")
 
 #Game variables
-WIDTH = 600
-HEIGHT = 400
-PADDLE_SPEED = 5
+WIDTH = 1000
+HEIGHT = 500
+PADDLE_SPEED = 6
 BALL_SIZE = 10
-BALL_SPEED_Y = 5
-BALL_SPEED_X = 5
+BALL_SPEED_Y = 7
+BALL_SPEED_X = 7
 SCORE1 = 0
 SCORE2 = 0
 SERVE_OFFSET = 20
@@ -26,7 +26,8 @@ FREE_MOVEMENT_ACTIVATION = 3
 WIN_SCORE = 7
 GAME_OVER = False
 COLLISION_COOLDOWN = 0
-MAX_BALL_Y_SPEED = 6
+MAX_BALL_Y_SPEED = 8
+MAX_BALL_X_SPEED = 12
 
 #Objects
 
@@ -43,15 +44,15 @@ paddle2 = pygame.Rect(WIDTH - 30, HEIGHT // 2 - 40, 10, 80) #Creating paddle 2
 paddle1_boundaries = pygame.Rect(
     0,          # left edge
     0,          # top edge
-    300,        # width → up to x = 299
+    (WIDTH //2) - 1,        #right edge   x = 499
     HEIGHT
 )
 
 paddle2_boundaries = pygame.Rect(
-    301,        # left edge
+    (WIDTH // 2) + 1,   # left edge   x = 501
     0,          # top edge
-    WIDTH - 301,# width → from x = 301 to right edge
-    HEIGHT
+    WIDTH,# right edge
+    HEIGHT 
 )
 ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2,HEIGHT // 2 - BALL_SIZE // 2,BALL_SIZE,BALL_SIZE) #Creating pong ball
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
@@ -62,17 +63,28 @@ clock = pygame.time.Clock() #Used for the frame rate
 def bounce_from_paddle(ball, paddle):
     global BALL_SPEED_X, BALL_SPEED_Y
 
-    # How far from the paddle center the ball hit
-    offset = ball.centery - paddle.centery
+    # How far from center did the ball hit? (-1 to 1)
+    offset = (ball.centery - paddle.centery) / (paddle.height / 2)
 
-    # Normalize between -1 and 1
-    normalized = offset / (paddle.height / 2)
+    # Set vertical speed based on where it hit
+    BALL_SPEED_Y = int(offset * (MAX_BALL_Y_SPEED + 2))
 
-    # Set vertical speed based on hit position
-    BALL_SPEED_Y = int(normalized * MAX_BALL_Y_SPEED)
+    # Make sure it's not perfectly flat
+    if BALL_SPEED_Y == 0:
+        BALL_SPEED_Y = 1
 
-    # Reverse horizontal direction
+    # Keeps the ball speed within it's limit, so it doesn't infinitely become faster
+    BALL_SPEED_Y = max(-MAX_BALL_Y_SPEED, min(BALL_SPEED_Y, MAX_BALL_Y_SPEED))
+    BALL_SPEED_X = max(-MAX_BALL_X_SPEED, min(BALL_SPEED_X, MAX_BALL_X_SPEED))
+
+    # Bounce back horizontally AND speed up
     BALL_SPEED_X *= -1
+    
+    # Speed boost for center hits
+    if abs(offset) < 0.3:  # If hit near center (adjust 0.3 to make the "middle" zone bigger/smaller)
+        BALL_SPEED_X = int(BALL_SPEED_X * 1.2)  # 20% speed boost (adjust 1.2 to increase/decrease boost)
+
+
 
 
 #Loop game
