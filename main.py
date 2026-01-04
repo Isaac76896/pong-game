@@ -26,6 +26,7 @@ FREE_MOVEMENT_ACTIVATION = 3
 WIN_SCORE = 7
 GAME_OVER = False
 COLLISION_COOLDOWN = 0
+MAX_BALL_Y_SPEED = 6
 
 #Objects
 
@@ -56,6 +57,22 @@ ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2,HEIGHT // 2 - BALL_SIZE // 2,BALL
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
 clock = pygame.time.Clock() #Used for the frame rate
 
+#Functions
+
+def bounce_from_paddle(ball, paddle):
+    global BALL_SPEED_X, BALL_SPEED_Y
+
+    # How far from the paddle center the ball hit
+    offset = ball.centery - paddle.centery
+
+    # Normalize between -1 and 1
+    normalized = offset / (paddle.height / 2)
+
+    # Set vertical speed based on hit position
+    BALL_SPEED_Y = int(normalized * MAX_BALL_Y_SPEED)
+
+    # Reverse horizontal direction
+    BALL_SPEED_X *= -1
 
 
 #Loop game
@@ -111,12 +128,12 @@ while True: #Loop to keep the game running; checking for events constantly
 
     if COLLISION_COOLDOWN == 0 and ball.colliderect(paddle1): #Collision for paddle1
         ball.left = paddle1.right
-        BALL_SPEED_X *= -1
+        bounce_from_paddle(ball, paddle1)
         COLLISION_COOLDOWN = 5
 
     if COLLISION_COOLDOWN == 0 and ball.colliderect(paddle2): #Collision for paddle2
         ball.right = paddle2.left
-        BALL_SPEED_X *= -1
+        bounce_from_paddle(ball, paddle2)
         COLLISION_COOLDOWN = 5
 
     #Scoring
