@@ -71,6 +71,11 @@ def bounce_from_paddle(ball, paddle):
     BALL_SPEED_Y = max(-MAX_BALL_Y_SPEED, min(BALL_SPEED_Y, MAX_BALL_Y_SPEED))
     BALL_SPEED_X = max(-MAX_BALL_X_SPEED, min(BALL_SPEED_X, MAX_BALL_X_SPEED))
 
+# -------------------- MAIN MENU SCENE --------------------
+def main_menu_scene():
+    pass
+
+
 
 # -------------------- PLAY SCENE --------------------
 def play_scene():
