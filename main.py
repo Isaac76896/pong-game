@@ -35,9 +35,11 @@ MAX_BALL_X_SPEED = 14
 try:
     font = pygame.font.Font(os.path.join(FONTS_DIR, "Extradition.ttf"), 36) #Font used for the score
     game_over_font = pygame.font.Font(os.path.join(FONTS_DIR, "Extradition-Italic.ttf"), 50) #Font used for the game over screen
+    main_menu_font = pygame.font.Font(os.path.join(FONTS_DIR, "Extradition.ttf"), 50)
 except FileNotFoundError:
     font = pygame.font.SysFont(None, 36)
     game_over_font = pygame.font.SysFont(None, 50)
+    main_menu_font = pygame.font.SysFont(None, 50)
 
 window = pygame.display.set_mode((WIDTH,HEIGHT))  #Setting width and height to the window
 clock = pygame.time.Clock() #Used for the frame rate
@@ -73,7 +75,23 @@ def bounce_from_paddle(ball, paddle):
 
 # -------------------- MAIN MENU SCENE --------------------
 def main_menu_scene():
-    pass
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                return play_scene     #Pressing any key will switch to the play scene 
+
+        #Drawing
+        window.fill((0, 0, 0))
+        main_menu_text = main_menu_font.render("MAD PONG",True,(255,128,0))
+        window.blit(main_menu_text, (WIDTH // 2 - main_menu_text.get_width() // 2, 20))
+    
+        pygame.display.flip()
+        clock.tick(60)
+    
+    
 
 
 
@@ -261,8 +279,9 @@ def game_over_scene():
             if event.type == pygame.KEYDOWN:
                 return play_scene  # NEW: restart game
 
+        #Drawing
         window.fill((0, 0, 0))
-        game_over_text = game_over_font.render(f"GAME OVER!!!", True, (210, 43, 43))
+        game_over_text = game_over_font.render("GAME OVER!!!", True, (210, 43, 43))
         window.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2))
         
         pygame.display.flip()
@@ -271,7 +290,7 @@ def game_over_scene():
 
 # -------------------- SCENE MANAGER (NEW) --------------------
 def main():
-    current_scene = play_scene
+    current_scene = main_menu_scene
     while current_scene:
         current_scene = current_scene()
 
